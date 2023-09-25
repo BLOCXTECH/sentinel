@@ -53,14 +53,6 @@ In the crontab editor, add the lines below, replacing '/path/to/sentinel' to the
 
     * * * * * cd /path/to/sentinel && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1
 
-### Test Configuration
-
-Test the config by running tests:
-
-    $ ./venv/bin/py.test ./test
-
-With all tests passing and crontab setup, Sentinel will stay in sync with blocxd and the installation is complete
-
 ## Configuration
 
 Configuration is done via environment variables. Example:
