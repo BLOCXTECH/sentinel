@@ -51,7 +51,7 @@ Set up a crontab entry to call Sentinel every minute:
 
 In the crontab editor, add the lines below, replacing '/path/to/sentinel' to the path where you cloned sentinel to:
 
-    * * * * * cd /path/to/sentinel && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1
+    * * * * * cd /path/to/sentinel && RPCUSER=blocx RPCPASSWORD=password RPCHOST=127.0.0.1 RPCPORT=12971 ./venv/bin/python bin/sentinel.py >/dev/null 2>&1
 
 ## Configuration
 
