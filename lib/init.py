@@ -1,0 +1,118 @@
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "lib"))
+
+
+def is_valid_python_version():
+    version_valid = False
+
+    ver = sys.version_info
+
+    # minimum supported Python version is 3.6
+    if (3 == ver.major) and (6 <= ver.minor):
+        version_valid = True
+
+    return version_valid
+
+
+def python_short_ver_str():
+    ver = sys.version_info
+    return "%s.%s" % (ver.major, ver.minor)
+
+
+def are_deps_installed():
+    installed = False
+
+    try:
+        import peewee
+        import bitcoinrpc.authproxy
+        import simplejson
+
+        installed = True
+    except ImportError as e:
+        print("[error]: Missing dependencies")
+
+    return installed
+
+
+def is_database_correctly_configured():
+    import peewee
+    import config
+
+    configured = False
+
+    cannot_connect_message = "Cannot connect to database. Please ensure database service is running and user access is properly configured in 'sentinel.conf'."
+
+    try:
+        db = config.db
+        db.connect(reuse_if_open=True)
+        configured = True
+    except (peewee.ImproperlyConfigured, peewee.OperationalError, ImportError) as e:
+        print("[error]: %s" % e)
+        print(cannot_connect_message)
+        sys.exit(1)
+
+    return configured
+
+
+def has_blocx_conf():
+    import config
+    import io
+
+    valid_blocx_conf = False
+
+    # ensure blocx_conf exists & readable
+    #
+    # if not, print a message stating that Blocx Core must be installed and
+    # configured, including JSONRPC access in blocx.conf
+    try:
+        f = io.open(config.blocx_conf)
+        valid_blocx_conf = True
+    except IOError as e:
+        print(e)
+
+    return valid_blocx_conf
+
+
+def has_required_env_vars():
+    for var in ["RPCHOST", "RPCPASSWORD", "RPCPORT", "RPCUSER"]:
+        if var not in os.environ:
+            return False
+    return True
+
+
+# === begin main
+
+
+def main():
+    install_instructions = "\tpip install -r requirements.txt"
+
+    if not is_valid_python_version():
+        print("Python %s is not supported" % python_short_ver_str())
+        sys.exit(1)
+
+    if not are_deps_installed():
+        print("Please ensure all dependencies are installed:")
+        print(install_instructions)
+        sys.exit(1)
+
+    if not is_database_correctly_configured():
+        print("Please ensure correct database configuration.")
+        sys.exit(1)
+
+    if not has_required_env_vars() and not has_blocx_conf():
+        print(
+            "BlocX must be installed and configured, including JSONRPC access in blocx.conf"
+        )
+        sys.exit(1)
+
+    # deprecation warning
+    if not has_required_env_vars() and has_blocx_conf():
+        print(
+            "deprecation warning: JSONRPC credentials should now be set using environment variables. Using blocx.conf will be deprecated in the near future."
+        )
+
+
+main()
