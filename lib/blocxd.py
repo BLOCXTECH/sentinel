@@ -93,8 +93,8 @@ class BlocXDaemon:
         # TODO: expensive call, so memoize this
         masternode_count = self.rpc_command("masternode", "count")
         if "detailed" in masternode_count:
-            regular_weight = masternode_count["detailed"]["regular"]["enabled"]
-            hpmn_weight = masternode_count["detailed"]["hpmn"]["enabled"] * 4
+            regular_weight = masternode_count["detailed"]["Regular"]["enabled"] * 10
+            hpmn_weight = masternode_count["detailed"]["Lite"]["enabled"]
             total_weight = regular_weight + hpmn_weight
         else:
             total_weight = self.rpc_command("masternode", "count")["enabled"]
